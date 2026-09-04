@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Straffvärde Narkotika</title>
+    <style>
+        :root {
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-main: #000000;
+            --text-muted: #8e8e93;
+            --border: #e5e5ea;
+        }
+
+        /* Dark mode stöd för iOS */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000;
+                --card-bg: #1c1c1e;
+                --text-main: #ffffff;
+                --text-muted: #98989d;
+                --border: #38383a;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Huvudcontainer formad efter en iPhone-widget */
+        .widget-container {
+            width: 100%;
+            max-width: 390px; /* iPhone 13 bredd */
+            height: 800px;
+            max-height: 90vh;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 24px 16px 12px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 4px 0 16px;
+        }
+
+        .selector-container {
+            padding: 0 16px 16px;
+        }
+
+        /* iOS-stil på rullgardinsmenyn */
+        select {
+            width: 100%;
+            appearance: none;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            border: none;
+            padding: 14px 16px;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 12px;
+            outline: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238e8e93%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px top 50%;
+            background-size: 14px auto;
+        }
+
+        /* Scrollbar innehållsyta */
+        .results {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Mjuk scroll på iOS */
+        }
+
+        .section-header {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Färgkodning baserad på din bild */
+        .bg-blue { background-color: rgba(0, 122, 255, 0.9); }
+        .bg-red { background-color: rgba(255, 59, 48, 0.9); }
+        .bg-black { background-color: rgba(28, 28, 30, 0.9); color: #fff; }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 16px;
+        }
+        
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .label { color: var(--text-muted); }
+        .value { font-weight: 600; }
+
+        .note-box {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 16px;
+            text-align: center;
+            background: var(--bg-color);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="widget-container">
+    <div class="header">
+        <h1>Straffvärde Narkotika</h1>
+        <p>Utifrån narkotikans art och mängd</p>
+    </div>
+
+    <div class="selector-container">
+        <select id="drug-select" onchange="updateWidget()"></select>
+    </div>
+
+    <div class="results" id="results-container">
+        <div class="section-header bg-blue">Normalgrad (Månader)</div>
+        <div id="normal-data"></div>
+
+        <div class="section-header bg-red">Grovt brott (År)</div>
+        <div id="grovt-data"></div>
+
+        <div class="section-header bg-black">Synnerligen grovt brott (År)</div>
+        <div id="synn-data"></div>
+        
+        <div id="widget-note" class="note-box"></div>
+    </div>
+</div>
+
+<script>
+    // Komplett databas extraherad från bilden
+    const drugData = {
+        "Amfetamin": {
+            units: ["g", "g", "kg"], note: "¹ Gäller även syntetiska katinoner, mefedron och MDPV.",
+            normal: ["5", "10", "15", "25", "40", "60", "80", "100", "120", "140", "160", "180"],
+            grovt: ["200", "500", "1 000", "2 000", "5 000"],
+            synn: ["25", "100", "500"]
+        },
+        "Cannabis": {
+            units: ["g", "kg", "kg"], note: "",
+            normal: ["50", "100", "150", "250", "400", "600", "800", "1 000", "1 200", "1 400", "1 600", "1 800"],
+            grovt: ["2", "5", "10", "20", "50"],
+            synn: ["250", "1 000", "5 000"]
+        },
+        "Ecstasy": {
+            units: ["g/tabl", "g/tabl", "kg/tabl"], note: "² I tabellen jämställs tabletter med 0,1 gram verksam substans med pulver.",
+            normal: ["5 / 50", "10 / 100", "15 / 150", "25 / 250", "40 / 400", "60 / 600", "80 / 800", "100 / 1 000", "120 / 1 200", "140 / 1 400", "160 / 1 600", "180 / 1 800"],
+            grovt: ["200 / 2 000", "500 / 5 000", "1 000 / 10 000", "2 000 / 20 000", "5 000 / 50 000"],
+            synn: ["25 / 250 000", "100 / 1 000 000", "500 / 5 000 000"]
+        },
+        "GHB": {
+            units: ["cl", "l", "l"], note: "",
+            normal: ["50", "100", "150", "250", "400", "600", "800", "1 000", "1 200", "1 400", "1 600", "1 800"],
+            grovt: ["20", "50", "100", "200", "500"],
+            synn: ["2 500", "10 000", "50 000"]
+        },
+        "Heroin": {
+            units: ["g", "g", "kg"], note: "",
+            normal: ["0,05", "0,1", "0,5", "1", "4", "6", "8", "10", "12", "14", "16", "18"],
+            grovt: ["20", "50", "100", "200", "500"],
+            synn: ["2,5", "10", "50"]
+        },
+        "Kat": {
+            units: ["kg", "kg", "kg"], note: "",
+            normal: ["4", "8", "12", "20", "32", "48", "64", "80", "96", "112", "128", "144"],
+            grovt: ["160", "400", "800", "1 600", "4 000"],
+            synn: ["20 000", "80 000", "400 000"]
+        },
+        "Kokain": {
+            units: ["g", "g", "kg"], note: "",
+            normal: ["0,6", "1", "3", "5", "8", "12", "16", "20", "24", "28", "32", "36"],
+            grovt: ["40", "100", "200", "400", "1 000"],
+            synn: ["5", "20", "100"]
+        },
+        "Opium": {
+            units: ["g", "g", "kg"], note: "",
+            normal: ["0,16", "0,3", "1,5", "3", "12", "18", "24", "30", "36", "42", "48", "54"],
+            grovt: ["60", "150", "300", "600", "1 500"],
+            synn: ["7,5", "30", "150"]
+        },
+        "Rohypnol": {
+            units: ["tabl", "tabl", "tabl"], note: "³ Gäller även \"andra tabletter\" (av typ bensodiazepiner).",
+            normal: ["250", "500", "750", "1 250", "2 000", "3 000", "4 000", "5 000", "6 000", "7 000", "8 000", "9 000"],
+            grovt: ["10 000", "25 000", "50 000", "100 000", "250 000"],
+            synn: ["1 250 000", "5 000 000", "25 000 000"]
+        },
+        "Subutex": {
+            units: ["tabl", "tabl", "tabl"], note: "",
+            normal: ["4", "10", "20", "40", "60", "80", "100", "120", "140", "165", "190", "215"],
+            grovt: ["240", "600", "1 200", "2 400", "6 000"],
+            synn: ["30 000", "120 000", "600 000"]
+        },
+        "Svamp": {
+            units: ["g", "kg", "kg"], note: "",
+            normal: ["100", "200", "300", "500", "800", "1 200", "1 600", "2 000", "2 400", "2 800", "3 200", "3 600"],
+            grovt: ["4", "10", "20", "40", "100"],
+            synn: ["500", "2 000", "10 000"]
+        },
+        "Tramadol": {
+            units: ["g", "kg", "kg"], note: "⁴ Vikten avser mängden verksam substans.",
+            normal: ["20", "40", "60", "100", "160", "240", "320", "400", "480", "560", "640", "720"],
+            grovt: ["0,8", "2", "4", "8", "20"],
+            synn: ["100", "400", "2 000"]
+        }
+    };
+
+    // Fasta straffskalor
+    const normalMths = ['0,5', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+    const grovtYrs = ['1', '2', '3', '4', '5'];
+    const synnYrs = ['6', '7', '8']; // Endast år 6-8 har specifik data i källtabellen
+
+    function updateWidget() {
+        const drug = document.getElementById('drug-select').value;
+        const data = drugData[drug];
+
+        // Rendera Normalgrad
+        let normalHtml = '';
+        data.normal.forEach((amount, i) => {
+            normalHtml += `<div class="row"><span class="label">${normalMths[i]} mån</span><span class="value">${amount} ${data.units[0]}</span></div>`;
+        });
+        document.getElementById('normal-data').innerHTML = normalHtml;
+
+        // Rendera Grovt
+        let grovtHtml = '';
+        data.grovt.forEach((amount, i) => {
+            grovtHtml += `<div class="row"><span class="label">${grovtYrs[i]} år</span><span class="value">${amount} ${data.units[1]}</span></div>`;
+        });
+        document.getElementById('grovt-data').innerHTML = grovtHtml;
+
+        // Rendera Synnerligen grovt
+        let synnHtml = '';
+        data.synn.forEach((amount, i) => {
+            synnHtml += `<div class="row"><span class="label">${synnYrs[i]} år</span><span class="value">${amount} ${data.units[2]}</span></div>`;
+        });
+        document.getElementById('synn-data').innerHTML = synnHtml;
+
+        // Hantera fotnoter
+        const noteEl = document.getElementById('widget-note');
+        let noteText = data.note ? data.note + "<br><br>" : "";
+        noteText += "Källa: Malmö Universitet";
+        noteEl.innerHTML = noteText;
+        
+        // Återställ scrollen till toppen vid byte av substans
+        document.getElementById('results-container').scrollTop = 0;
+    }
+
+    // Initiera widgeten när sidan laddas
+    document.addEventListener('DOMContentLoaded', () => {
+        const select = document.getElementById('drug-select');
+        Object.keys(drugData).forEach(drug => {
+            let opt = document.createElement('option');
+            opt.value = drug;
+            opt.innerHTML = drug;
+            select.appendChild(opt);
+        });
+        updateWidget();
+    });
+</script>
+</body>
+</html>
